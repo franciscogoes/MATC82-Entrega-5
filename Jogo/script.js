@@ -1,9 +1,11 @@
 var inimigos = new Array();
 var balas = new Array();
+var municoes = new Array();
 let texto = " ";
 let minutos = "";
 let segundos = "";
 let tempoDeSessao = 0;
+let jogoEmAndamento = true;
 //let level = 1;
 //let playerx = 320, playery = 240;
 //let direction = 1;
@@ -50,6 +52,8 @@ function passaDeLevel(){
 // Calcula colisao
 function colisao(item, indice, inimigos){
 	if(Math.sqrt(Math.pow((jogador.getX() - inimigos[indice].getX()), 2) + Math.pow((jogador.getY() - inimigos[indice].getY()), 2)) < 100 / 2 ){
+		jogoEmAndamento = false;
+		inimigos[indice].setSource("sprites/explosao.png");
 		$("canvas").drawImage({
 			source: 'sprites/explosao.png',
 			x: inimigos[indice].getX(),
@@ -65,6 +69,51 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+//classe bala
+class municao{
+	constructor(){
+		this.source = 'sprites/municao.png';
+		let opcao = getRandomInt(1,5);
+		switch(opcao){
+		case(1): // Nasce no leste
+			this.x = 770;
+			this.y = Math.random()*600;
+			break;
+		case(2): // Nasce no oeste
+			this.x = 30;
+			this.y = Math.random()*600;
+			break;	
+		case(3): // Nasce no norte
+			this.x = Math.random()*800;
+			this.y = 30;
+			break;
+		case(4): // Nasce no sul
+			this.x = Math.random()*600;
+			this.y = 570;
+			break;
+		}
+		this.direcao = getRandomInt(1,8);
+	}
+	getDirecao(){
+		return this.direcao;
+	}
+	getSource(){
+		return this.source;
+	}
+	setX(x){
+		this.x = x;
+	}
+	getX(){
+		return this.x;
+	}
+	setY(y){
+		this.y = y;
+	}
+	getY(){
+		return this.y;
+	}
 }
 
 //classe bala
@@ -92,9 +141,11 @@ class bala{
 }
 
 function atirar(){
-	if(jogador.getMunicao()>0){
-		jogador.setMunicao(jogador.getMunicao()-1);
-		balas.push(new bala);
+	if(jogoEmAndamento==true){
+		if(jogador.getMunicao()>0){
+			jogador.setMunicao(jogador.getMunicao()-1);
+			balas.push(new bala);
+		}
 	}
 }
 //Classe player
@@ -195,6 +246,9 @@ class inimigo{
 		getDirecao(){
 			return this.direcao;
 		}
+		setSource(source){
+			this.source = source;
+		}
 		getSource(){
 			return this.source;
 		}
@@ -218,50 +272,116 @@ function andarBala(item, indice, balas){
 }
 
 // Movimenta o inimigo de acordo com sua direcao
-function andarInimigo(item, indice, inimigos){
-		switch(inimigos[indice].getDirecao()){
+function andarMunicao(item, indice, municoes){
+	if(jogoEmAndamento==true){
+		switch(municoes[indice].getDirecao()){
 		case(1): // Andar para leste
-			inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()-5);
 			break;
 		case(2): // Andar para oeste
-			inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()+5);
 			break;
 		case(3): // Andar para norte
-			inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setY(municoes[indice].getY()-5);
 			break;
 		case(4): // Andar para sul
-			inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setY(municoes[indice].getY()+5);
 			break;
 		case(5): // Andar para noroeste
-			inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
-			inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()-5);
+			municoes[indice].setY(municoes[indice].getY()-5);
 			break;
 		case(6): // Andar para nordeste
-			inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
-			inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()+5);
+			municoes[indice].setY(municoes[indice].getY()-5);
 			break;
 		case(7): // Andar para sudoeste
-			inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
-			inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()-5);
+			municoes[indice].setY(municoes[indice].getY()+5);
 			break;
 		case(8):  // Andar para sudeste
-			inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
-			inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()+5);
+			municoes[indice].setY(municoes[indice].getY()+5);
 			break;
 		default:
-		 	inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+			municoes[indice].setX(municoes[indice].getX()-5);
 		 	break;
+		}
+	}
+}
+
+// Movimenta o inimigo de acordo com sua direcao
+function andarInimigo(item, indice, inimigos){
+	switch(inimigos[indice].getDirecao()){
+	case(1): // Andar para leste
+		inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(2): // Andar para oeste
+		inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(3): // Andar para norte
+		inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(4): // Andar para sul
+		inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(5): // Andar para noroeste
+		inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(6): // Andar para nordeste
+		inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(7): // Andar para sudoeste
+		inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	case(8):  // Andar para sudeste
+		inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setY(inimigos[indice].getY()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		break;
+	default:
+	 	inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+	 	break;
 	}
 }
 
 // Fazem os inimigos que estao no vetor de inimigos andarem
 function inimigosAndam(){
-	inimigos.forEach(andarInimigo);
+	if(jogoEmAndamento==true){
+		inimigos.forEach(andarInimigo);
+	}
 }
 
 // Fazem os inimigos que estao no vetor de inimigos andarem
 function balasAndam(){
 	balas.forEach(andarBala);
+
+}
+
+// Fazem os inimigos que estao no vetor de inimigos andarem
+function municoesAndam(){
+	if(jogoEmAndamento==true){
+		municoes.forEach(andarMunicao);
+	}
+}
+
+// Desenha municao
+function desenhaMunicao(item, indice, municoes){
+		$("canvas").drawImage({
+		source: 'sprites/municao.png',
+		x: municoes[indice].getX(),
+		y: municoes[indice].getY(),
+		width: 50,
+		height: 50
+	});
+}
+
+// Renderiza as municoes que estao no vetor de municoes
+function renderizaMunicoes(){
+	municoes.forEach(desenhaMunicao);
+	municoesAndam();
 }
 
 // Desenha bala
@@ -270,8 +390,8 @@ function desenhaBala(item, indice, balas){
 		source: 'sprites/bala.png',
 		x: balas[indice].getX(),
 		y: balas[indice].getY(),
-		width: 30,
-		height: 30
+		width: 8,
+		height: 25
 	});
 }
 
@@ -303,17 +423,25 @@ function jogadorColidiu(){
 	inimigos.forEach(colisao);
 }
 
+function criarMunicao(){
+	if(jogoEmAndamento==true){
+		municoes.push(new municao);
+	}
+}
+
 // Cria inimigos
 function criarInimigos(){
-	if(jogador.getLevel()<3){
-		for(var qt = 1; qt <= jogador.getLevel(); qt++) {
+	if(jogoEmAndamento==true){
+		if(jogador.getLevel()<3){
+			for(var qt = 1; qt <= jogador.getLevel(); qt++) {
+				inimigos.push(new inimigo);
+			}
+		}else{
+			inimigos.push(new inimigo);
+			inimigos.push(new inimigo);
+			inimigos.push(new inimigo);
 			inimigos.push(new inimigo);
 		}
-	}else{
-		inimigos.push(new inimigo);
-		inimigos.push(new inimigo);
-		inimigos.push(new inimigo);
-		inimigos.push(new inimigo);
 	}	
 }
 
@@ -381,6 +509,7 @@ function renderScene() {
 	// Chama função que renderiza os inimigos
 	jogadorColidiu();
 	renderizaInimigos();
+	renderizaMunicoes();
 	renderizaBalas();
 	novoJogo();
 	//enemyWave();
@@ -410,6 +539,7 @@ $(document).ready(function() {
 //	setInterval(gameLoop, 15);
 	setInterval(passaDeLevel, 30000);
 	setInterval(criarInimigos, 150);
+	setInterval(criarMunicao, 1000);
 	setInterval(renderScene, 15);
 	setInterval(timer, 1000);
 //	setInterval(resetEnemies, 2000);
