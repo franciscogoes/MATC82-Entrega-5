@@ -11,7 +11,8 @@ let tempoDeSessao = 0;
 //let movXRandom = (Math.random() - 0.5);
 //let i = 0;
 //let xprojecao = Math.random()*800, yprojecao = 0;
-
+  
+  
 function timer() {
 	tempoDeSessao++;
 	minutos = parseInt(tempoDeSessao / 60);
