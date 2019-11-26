@@ -8,20 +8,8 @@ let tempoDeSessao = 0;
 let jogoEmAndamento = false;
 
 
-$("#tela").drawRect({
-	fillStyle: "#000",
-	x: 400,
-	y: 300,
-	width: 800,
-	height: 600
-});
-
-$("#tela").on("click",function(){
-	start=true;
-});
-
 function partida(){
-	//jogador.setNome(window.prompt("Qual seu nome?"));
+	jogador.setNome(window.prompt("Qual seu nome?"));
 	jogador.setLevel(1);
 	jogador.setPontuacao(0);
 	jogador.setVelocidadeMax(5);
@@ -42,7 +30,7 @@ function timer() {
 	minutos = parseInt(tempoDeSessao / 60);
 	minutos =  minutos < 10 ? "0" + minutos : minutos;
 	segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
-	texto = "Jogador: "+ jogador.getNome() + " | Level: "+ jogador.getLevel() + " | Tempo: " + minutos + ":" + segundos;
+	texto = "Jogador: "+ jogador.getNome() + " | Level: "+ jogador.getLevel() + " | Tempo: " + minutos + ":" + segundos + " | Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
 }
 
 
@@ -405,7 +393,6 @@ function balaColidiu(){
 				jogador.setPontuacao(jogador.getPontuacao()+300)
 				balas.splice(i, 1);
 				inimigos.splice(j, 1);
-				console.log("tiro pegou");
 			}
 		}
 	}
@@ -440,7 +427,7 @@ function colisaoPlayer(item, indice, inimigos){
 			height: 200
 		});
 		jogoEmAndamento = false;
-		window.alert("Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao() + " pontos. Tente novamente.");
+		setTimeout(function() { window.alert("Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao() + " pontos. Tente novamente."); }, 1000);
 	}
 }
 
@@ -457,6 +444,7 @@ function renderiza(){
 		removerBalasForaDaTela();
 		removerInimigosForaDaTela();
 		removerMunicoesForaDaTela();
+		renderizaCanvas2();
 		renderizaCanvas();
 		renderizaPlanoDeFundo();
 		renderizaPlayer();
@@ -464,7 +452,7 @@ function renderiza(){
 		renderizaMunicoes();
 		renderizaBalas();
 		renderizaTempo();
-		renderizaPlacar();
+		//renderizaPlacar();
 		jogadorColidiu();
 		municaoColidiu();
 		balaColidiu();
@@ -512,9 +500,9 @@ function renderizaCanvas(){
 	});
 }
 
-// Renderiza a contagem do tempo e outras informacoes
+// Renderiza a contagem do tempo
 function  renderizaTempo(){
-	$("#game").drawText({
+	$("#placar").drawText({
 	fillStyle: "#FFF",
 	x: ($("#game").width()/2), 
 	y: 20,
@@ -524,16 +512,17 @@ function  renderizaTempo(){
 	});
 }
 
-function renderizaPlacar(){
-	$("canvas").drawText({
-		fillStyle: "#FFF",
-		x: ($("canvas").width()/2), 
-		y: 50,
-		fontSize: 20,
-		fontFamily: 'Arial',
-		text: "Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao()
+// Renderiza o canvas
+function renderizaCanvas2(){
+	$("#placar").drawRect({
+	fillStyle: "#000",
+	x: 400,
+	y: 300,
+	width: 800,
+	height: 600,
 	});
 }
+
 
 // Renderiza as balas que estao no vetor de balas
 function renderizaBalas(){
@@ -714,16 +703,16 @@ function novoJogo(){
 */
 
 $(document).ready(function() {
-	$("canvas").css("cursor", "none");
-	$("canvas").on("mousemove", function(event) {
+	$("#game").css("cursor", "none");
+	$("#game").on("mousemove", function(event) {
 		jogador.setX(event.pageX - ($("body").width() - $("canvas").width())/2);
 		jogador.setY(event.pageY);
 	});
-	$("canvas").on("click", function(event) {
+	$("#game").on("click", function(event) {
 		atirar();
 	});
 	jogador = new player();
-	texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
+	//texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
 	/*if(!jogoEmAndamento){
 		$("canvas").on("click", function(event) {
 			partida();
