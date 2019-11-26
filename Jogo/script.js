@@ -7,36 +7,48 @@ let segundos = "";
 let tempoDeSessao = 0;
 let jogoEmAndamento = false;
 
+
+$("#tela").drawRect({
+	fillStyle: "#000",
+	x: 400,
+	y: 300,
+	width: 800,
+	height: 600
+});
+
+$("#tela").on("click",function(){
+	start=true;
+});
+
 function partida(){
-	jogador.setNome(window.prompt("Qual seu nome?"));
-	jogador.setLevel(8);
+	//jogador.setNome(window.prompt("Qual seu nome?"));
+	jogador.setLevel(1);
 	jogador.setPontuacao(0);
 	jogador.setVelocidadeMax(5);
 	jogoEmAndamento = true;
 	setInterval(timer, 1000);
 	setInterval(passaDeLevel, 15000);
-	setInterval(criarInimigos, 1500);
-	setInterval(criarMunicao, 1000);
+	setInterval(criarInimigos, 1000);
+	setInterval(criarMunicao, 4000);
 	setInterval(renderiza, 15);
+	let soundtrack = new Audio('spacesound.wav');
+	soundtrack.play();
 }
 
 function timer() {
-	if(jogoEmAndamento==true){
+	if(jogoEmAndamento){
 		tempoDeSessao++;
-		minutos = parseInt(tempoDeSessao / 60);
-		minutos =  minutos < 10 ? "0" + minutos : minutos;
-		segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
-		texto = "Jogador: "+ jogador.getNome() + " " + "| Level: "+ jogador.getLevel() + " " + "| Tempo: " + minutos + ":" + segundos + " " + "| Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
 	}
+	minutos = parseInt(tempoDeSessao / 60);
+	minutos =  minutos < 10 ? "0" + minutos : minutos;
+	segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
+	texto = "Jogador: "+ jogador.getNome() + " | Level: "+ jogador.getLevel() + " | Tempo: " + minutos + ":" + segundos;
 }
 
+
 function jogadorVenceu(){
-	if(jogador.getLevel()>20){
-		window.alert("Voce venceu! Parabens!");
-		return true;
-	}else{
-		return false;
-	}
+	window.alert("Voce venceu! Parabens!");
+	jogoEmAndamento = false;
 }
 
 //Passa o jogador para o proximo level
@@ -45,6 +57,7 @@ function passaDeLevel(){
 		jogador.setLevel(jogador.getLevel()+1);
 		jogador.setPontuacao(jogador.getPontuacao()+(1000*jogador.getLevel()));
 		jogador.setVelocidadeMax(jogador.getVelocidadeMax()*1.1);
+		velBG += 0.6
 	}
 }
 
@@ -79,36 +92,49 @@ class bala{
 	}
 }
 
+function randomChoice(arr) {
+	return arr[Math.floor(Math.random() * arr.length)];
+}
+
+
+let paraEsq = [2, 5, 7];
+let paraDir = [1, 6, 8];
+let paraSul = [4, 7, 8];
+let paraNor = [3, 5, 6];
 // Classe inimigo
 class inimigo{
-constructor(){
-	this.source = "sprites/naveInimiga"+jogador.getLevel()+".png";
-	let opcao = getRandomInt(1,5);
-	switch(opcao){
-	case(1): // Nasce no leste
-		this.x = 770;
-		this.y = Math.random()*600;
-		break;
-	case(2): // Nasce no oeste
-		this.x = 30;
-		this.y = Math.random()*600;
-		break;	
-	case(3): // Nasce no norte
-		this.x = Math.random()*800;
-		this.y = 30;
-		break;
-	case(4): // Nasce no sul
-		this.x = Math.random()*600;
-		this.y = 570;
-		break;
-	}
-	let opcao2 = Math.random();
-	if(opcao2<0.2){
-		this.velocidade = 0.5;
-	}else{
-		this.velocidade = opcao2;
-	}
-	this.direcao = getRandomInt(1,8);
+	constructor(){
+		this.source = "sprites/Inimiga"+jogador.getLevel()+".png";
+		let opcao = getRandomInt(1,4);
+		switch(opcao){
+		case(1): // Nasce no leste
+			this.x = 770;
+			this.y = Math.random()*600;
+			this.direcao = randomChoice(paraEsq);
+			break;
+		case(2): // Nasce no oeste
+			this.x = 30;
+			this.y = Math.random()*600;
+			this.direcao = randomChoice(paraDir);
+			break;	
+		case(3): // Nasce no norte
+			this.x = Math.random()*800;
+			this.y = 30;
+			this.direcao = randomChoice(paraSul);
+			break;
+		/*case(4): // Nasce no sul
+			this.x = Math.random()*600;
+			this.y = 570;
+			this.direcao = getRandomInt(1,8);
+			break;*/
+		}
+
+		let opcao2 = Math.random();
+		if(opcao2<0.2){
+			this.velocidade = 0.5;
+		}else{
+			this.velocidade = opcao2;
+		}
 	}
 	getVelocidade(){
 		return this.velocidade;
@@ -145,21 +171,24 @@ class municao{
 		case(1): // Nasce no leste
 			this.x = 770;
 			this.y = Math.random()*600;
+			this.direcao = randomChoice(paraEsq);
 			break;
 		case(2): // Nasce no oeste
 			this.x = 30;
 			this.y = Math.random()*600;
+			this.direcao = randomChoice(paraDir);
 			break;	
 		case(3): // Nasce no norte
 			this.x = Math.random()*800;
 			this.y = 30;
+			this.direcao = randomChoice(paraSul);
 			break;
 		case(4): // Nasce no sul
 			this.x = Math.random()*600;
 			this.y = 570;
+			this.direcao = randomChoice(paraNor);
 			break;
 		}
-		this.direcao = getRandomInt(1,8);
 		this.qt = 50;
 	}
 	getQt(){
@@ -199,7 +228,7 @@ class player{
 		this.y = 240;
 		this.level = 1;
 		this.pontuacao = 0;
-		this.velocidadeMax = 5;
+		this.velocidadeMax = 3;
 		this.municao = 30;
 	}
 	setMunicao(municao){
@@ -256,7 +285,7 @@ class player{
 function atirar(){
 	if(jogoEmAndamento==true){
 		if(jogador.getMunicao()>0){
-			var audio = new Audio('tiro.wav');
+			let audio = new Audio('tiro.wav');
 			audio.play();
 			jogador.setMunicao(jogador.getMunicao()-1);
 			balas.push(new bala);
@@ -266,17 +295,17 @@ function atirar(){
 
 // Movimenta a bala para o norte
 function andarBala(item, indice, balas){
-	balas[indice].setY(balas[indice].getY()-4);
+	balas[indice].setY(balas[indice].getY()-8);
 }
 
 // Movimenta o inimigo de acordo com sua direcao
 function andarInimigo(item, indice, inimigos){
 	switch(inimigos[indice].getDirecao()){
 	case(1): // Andar para leste
-		inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
 		break;
 	case(2): // Andar para oeste
-		inimigos[indice].setX(inimigos[indice].getX()+jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
+		inimigos[indice].setX(inimigos[indice].getX()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
 		break;
 	case(3): // Andar para norte
 		inimigos[indice].setY(inimigos[indice].getY()-jogador.getVelocidadeMax()*inimigos[indice].getVelocidade());
@@ -311,10 +340,10 @@ function andarMunicao(item, indice, municoes){
 	if(jogoEmAndamento==true){
 		switch(municoes[indice].getDirecao()){
 		case(1): // Andar para leste
-			municoes[indice].setX(municoes[indice].getX()-5);
+			municoes[indice].setX(municoes[indice].getX()+5);
 			break;
 		case(2): // Andar para oeste
-			municoes[indice].setX(municoes[indice].getX()+5);
+			municoes[indice].setX(municoes[indice].getX()-5);
 			break;
 		case(3): // Andar para norte
 			municoes[indice].setY(municoes[indice].getY()-5);
@@ -370,7 +399,7 @@ function balaColidiu(){
 	for(var i=0 ; i<balas.length ; i++){
 		for(var j=0 ; j<inimigos.length ; j++){
 			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2 && jogoEmAndamento==true){
-				var audio = new Audio('tiroPegou.wav');
+				let audio = new Audio('tiroPegou.wav');
 				audio.play();
 				inimigos[j].setSource("sprites/explosao.png");
 				jogador.setPontuacao(jogador.getPontuacao()+300)
@@ -385,7 +414,7 @@ function balaColidiu(){
 // 
 function colisaoMunicao(item, indice, municoes){
 	if(Math.sqrt(Math.pow((jogador.getX() - municoes[indice].getX()), 2) + Math.pow((jogador.getY() - municoes[indice].getY()), 2)) < 100 / 2 && jogoEmAndamento == true){
-		var audio = new Audio('municao.wav');
+		let audio = new Audio('municao.wav');
 		audio.play();
 		jogador.setMunicao(jogador.getMunicao()+municoes[indice].getQt());
 		municoes.splice(indice, 1);
@@ -401,9 +430,9 @@ function municaoColidiu(){
 function colisaoPlayer(item, indice, inimigos){
 	if(Math.sqrt(Math.pow((jogador.getX() - inimigos[indice].getX()), 2) + Math.pow((jogador.getY() - inimigos[indice].getY()), 2)) < 100 / 2 && jogoEmAndamento == true){
 		inimigos[indice].setSource("sprites/explosao.png");
-		var audio = new Audio('playerColidiu.wav');
+		let audio = new Audio('playerColidiu.wav');
 		audio.play();
-		$("canvas").drawImage({
+		$("#game").drawImage({
 			source: 'sprites/explosao.png',
 			x: inimigos[indice].getX(),
 			y: inimigos[indice].getY(),
@@ -423,36 +452,47 @@ function jogadorColidiu(){
 //renderiza arrays
 function renderiza(){
 	// Limpa tela
-	$("canvas").clearCanvas();
-	removerBalasForaDaTela();
-	removerInimigosForaDaTela();
-	removerMunicoesForaDaTela();
-	renderizaCanvas();
-	renderizaPlanoDeFundo();
-	renderizaPlayer();
-	renderizaInimigos();
-	renderizaMunicoes();
-	renderizaBalas();
-	renderizaTempo();
-	jogadorColidiu();
-	municaoColidiu();
-	balaColidiu();
+	if(jogoEmAndamento){
+		$("#game").clearCanvas();
+		removerBalasForaDaTela();
+		removerInimigosForaDaTela();
+		removerMunicoesForaDaTela();
+		renderizaCanvas();
+		renderizaPlanoDeFundo();
+		renderizaPlayer();
+		renderizaInimigos();
+		renderizaMunicoes();
+		renderizaBalas();
+		renderizaTempo();
+		renderizaPlacar();
+		jogadorColidiu();
+		municaoColidiu();
+		balaColidiu();
+		if(jogador.getLevel()>14){
+			jogadorVenceu()
+		}
+	}
 }
 
 // Renderiza o plano de fundo
+let movBG = 0;
+let velBG = 0.5;
 function renderizaPlanoDeFundo(){
-	$("canvas").drawImage({
-	source: 'paginaBG2.jpg',
-	x: 400,
-	y: 300,
-	width: $("canvas").width(),
-	height: $("canvas").height()
+	if(movBG > 600){
+		movBG = 0;
+	}
+	$("#game").drawImage({
+		source: 'paginaBG3.jpg',
+		x: 400,
+		y: movBG += velBG,
+		width: $("#game").width(),
+		height: $("#game").height()*4
 	});
 }
 
 // Renderiza o jogador
 function renderizaPlayer(){
-	$("canvas").drawImage({
+	$("#game").drawImage({
 	source: 'sprites/naveMC.png',
 	x: jogador.getX(),
 	y: jogador.getY(),
@@ -463,7 +503,7 @@ function renderizaPlayer(){
 
 // Renderiza o canvas
 function renderizaCanvas(){
-	$("canvas").drawRect({
+	$("#game").drawRect({
 	fillStyle: "#000",
 	x: 400,
 	y: 300,
@@ -474,13 +514,24 @@ function renderizaCanvas(){
 
 // Renderiza a contagem do tempo e outras informacoes
 function  renderizaTempo(){
-	$("canvas").drawText({
+	$("#game").drawText({
 	fillStyle: "#FFF",
-	x: ($("canvas").width()/2), 
+	x: ($("#game").width()/2), 
 	y: 20,
 	fontSize: 20,
 	fontFamily: 'Arial',
 	text: texto
+	});
+}
+
+function renderizaPlacar(){
+	$("canvas").drawText({
+		fillStyle: "#FFF",
+		x: ($("canvas").width()/2), 
+		y: 50,
+		fontSize: 20,
+		fontFamily: 'Arial',
+		text: "Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao()
 	});
 }
 
@@ -504,7 +555,7 @@ function renderizaMunicoes(){
 
 // Desenha bala
 function desenhaBala(item, indice, balas){
-		$("canvas").drawImage({
+		$("#game").drawImage({
 		source: 'sprites/bala.png',
 		x: balas[indice].getX(),
 		y: balas[indice].getY(),
@@ -515,7 +566,7 @@ function desenhaBala(item, indice, balas){
 
 // Desenha o inimigo
 function desenhaInimigo(item, indice, inimigos){
-		$("canvas").drawImage({
+		$("#game").drawImage({
 		source: inimigos[indice].getSource(),
 		x: inimigos[indice].getX(),
 		y: inimigos[indice].getY(),
@@ -526,7 +577,7 @@ function desenhaInimigo(item, indice, inimigos){
 
 // Desenha municao
 function desenhaMunicao(item, indice, municoes){
-		$("canvas").drawImage({
+		$("#game").drawImage({
 		source: 'sprites/municao.png',
 		x: municoes[indice].getX(),
 		y: municoes[indice].getY(),
@@ -588,7 +639,7 @@ function removeBalaForaDaTela(item, indice, balas){
 
 // Remove a municao que saiu da tela do vetor de municoes
 function removeMunicaoForaDaTela(item, indice, municoes){
-	if(inimigos[indice].getX<0 || municoes[indice].getX>800 || municoes[indice].getY<0 || municoes[indice].getY<600){
+	if(municoes[indice].getX<0 || municoes[indice].getX>800 || municoes[indice].getY<0 || municoes[indice].getY<600){
 		municoes.splice(indice, 1);
 	}
 }
@@ -623,6 +674,45 @@ function removerMunicoesForaDaTela(){
 	municoes.forEach(removeMunicaoForaDaTela);
 }
 
+// TENTATIVA DE TELA DE INICIO
+/*
+function telaInicial(){
+	$("#tela").drawImage({
+		source: "paginaBG.jpg",
+		x: 400,
+		y: 300,
+		width: 1000,
+		height: 600
+	});
+}
+
+$(document).ready(function() {
+	telaInicial();
+	
+	$("#tela").on("click",function(){
+		if(!jogoEmAndamento)
+			novoJogo();
+		jogoEmAndamento = true;
+	});
+	
+});
+
+function novoJogo(){
+	$("#tela").clearCanvas();
+	$("#game").css("cursor", "none");
+	$("#game").on("mousemove", function(event) {
+		jogador.setX(event.pageX - ($("body").width() - $("#game").width())/2);
+		jogador.setY(event.pageY);
+	});
+	$("#game").on("click", function(event) {
+		atirar();
+	});
+	jogador = new player();
+	texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
+	partida();
+}
+*/
+
 $(document).ready(function() {
 	$("canvas").css("cursor", "none");
 	$("canvas").on("mousemove", function(event) {
@@ -633,5 +723,11 @@ $(document).ready(function() {
 		atirar();
 	});
 	jogador = new player();
+	texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
+	/*if(!jogoEmAndamento){
+		$("canvas").on("click", function(event) {
+			partida();
+		})
+	};*/ // Clicar para iniciar ou começar de novo
 	partida();
 });
