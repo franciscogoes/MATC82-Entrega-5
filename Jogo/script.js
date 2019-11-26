@@ -20,6 +20,8 @@ function partida(){
 	jogador.setVelocidadeMax(3);
 	jogoEmAndamento = true;
 	tempoDeSessao = 0;
+	movBG = 0;
+	velBG = 0.5;
 	if(restart){
 		removerTodasBalas();
 		removerTodosInimigos();
@@ -73,7 +75,7 @@ function passaDeLevel(){
 		jogador.setLevel(jogador.getLevel()+1);
 		jogador.setPontuacao(jogador.getPontuacao()+(1000*jogador.getLevel()));
 		jogador.setVelocidadeMax(jogador.getVelocidadeMax()*1.1);
-		velBG += 0.6;
+		velBG += 0.4;
 	}
 }
 
@@ -301,7 +303,7 @@ class player{
 function atirar(){
 	if(jogoEmAndamento==true){
 		if(jogador.getMunicao()>0){
-			let audio = new Audio('tiro.wav');
+			let audio = new Audio('tiroLaser.wav');
 			audio.play();
 			jogador.setMunicao(jogador.getMunicao()-1);
 			balas.push(new bala);
