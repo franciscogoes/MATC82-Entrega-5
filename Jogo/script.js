@@ -12,16 +12,12 @@ function partida(){
 	jogador.setLevel(1);
 	jogador.setPontuacao(0);
 	jogador.setVelocidadeMax(5);
-	timer();
 	jogoEmAndamento = true;
+	setInterval(timer, 1000);
 	setInterval(passaDeLevel, 15000);
 	setInterval(criarInimigos, 150);
 	setInterval(criarMunicao, 1000);
 	setInterval(renderiza, 15);
-	while(jogoEmAndamento==true && jogadorVenceu()==false){
-		return false;
-	}
-	return true;
 }
 
 function timer() {
@@ -29,12 +25,7 @@ function timer() {
 	minutos = parseInt(tempoDeSessao / 60);
 	minutos =  minutos < 10 ? "0" + minutos : minutos;
 	segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
-	texto = "Jogador: "+ jogador.getNome() + " " + "| Level: "+ jogador.getLevel() + " " + "| Tempo: " + minutos + ":" + segundos + " " + "| Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
-}
-
-// Verifica se o jogador colidiu com algum inimigo
-function jogadorColidiu(){
-	inimigos.forEach(colisaoPlayer);
+	texto = "Jogador777: "+ jogador.getNome() + " " + "| Level: "+ jogador.getLevel() + " " + "| Tempo: " + minutos + ":" + segundos + " " + "| Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
 }
 
 function jogadorVenceu(){
@@ -165,6 +156,16 @@ class municao{
 			break;
 		}
 		this.direcao = getRandomInt(1,8);
+		this.qt = 50;
+	}
+	getQt(){
+		return this.qt;
+	}
+	setSource(source){
+		this.source = source;
+	}
+	getSource(){
+		return this.source;
 	}
 	getDirecao(){
 		return this.direcao;
@@ -359,13 +360,31 @@ function municoesAndam(){
 }
 
 // 
-function colisaoMunicao(item, indice, inimigos){
-	for(var i=0;i<municoes.length();i++){
-		if(Math.sqrt(Math.pow((municoes[i].getY() - inimigos[indice].getY()), 2)) < 100 ){
-		console.log("colidiu");
-		municoes[i].setSource("'sprites/explosao.png'");
+function balaColidiu(){
+	for(var i=0 ; i<balas.length ; i++){
+		for(var j=0 ; j<inimigos.length ; j++){
+			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2){
+				inimigos[j].setSource("sprites/explosao.png");
+				jogador.setPontuacao(jogador.getPontuacao()+300)
+				balas.splice(i, 1);
+				inimigos.splice(j, 1);
+				console.log("tiro pegou");
+			}
 		}
 	}
+}
+
+// 
+function colisaoMunicao(item, indice, municoes){
+	if(Math.sqrt(Math.pow((jogador.getX() - municoes[indice].getX()), 2) + Math.pow((jogador.getY() - municoes[indice].getY()), 2)) < 100 / 2 && jogoEmAndamento == true){
+		jogador.setMunicao(jogador.getMunicao()+municoes[indice].getQt());
+		municoes.splice(indice, 1);
+	}
+}
+
+// 
+function municaoColidiu(){
+	municoes.forEach(colisaoMunicao);
 }
 
 // Calcula colisao
@@ -380,13 +399,13 @@ function colisaoPlayer(item, indice, inimigos){
 			height: 200
 		});
 		jogoEmAndamento = false;
-		window.alert("Voce colidiu! Tente novamente.");
+		window.alert("Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao() + " pontos. Tente novamente.");
 	}
 }
 
-// 
-function municaoColidiu(){
-	municoes.forEach(colisaoMunicao);
+// Verifica se o jogador colidiu com algum inimigo
+function jogadorColidiu(){
+	inimigos.forEach(colisaoPlayer);
 }
 
 //renderiza arrays
@@ -404,6 +423,8 @@ function renderiza(){
 	renderizaMunicoes();
 	renderizaBalas();
 	jogadorColidiu();
+	municaoColidiu();
+	balaColidiu();
 }
 
 // Renderiza o plano de fundo
@@ -531,12 +552,12 @@ function removeInimigo(item, indice, inimigos){
 
 // Remove todos os inimigos do vetor de inimigos
 function removeBala(item, indice, balas){
-	balas[indice].splice(indice, 1);
+	balas.splice(indice, 1);
 }
 
 // Remove todos os inimigos do vetor de inimigos
 function removerMunicao(item, indice, municoes){
-	municoes[indice].splice(indice, 1);
+	municoes.splice(indice, 1);
 }
 
 // Remove o inimigo que saiu da tela do vetor de inimigos
