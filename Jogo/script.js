@@ -9,13 +9,13 @@ let jogoEmAndamento = false;
 
 function partida(){
 	jogador.setNome(window.prompt("Qual seu nome?"));
-	jogador.setLevel(1);
+	jogador.setLevel(8);
 	jogador.setPontuacao(0);
 	jogador.setVelocidadeMax(5);
 	jogoEmAndamento = true;
 	setInterval(timer, 1000);
 	setInterval(passaDeLevel, 15000);
-	setInterval(criarInimigos, 150);
+	setInterval(criarInimigos, 1500);
 	setInterval(criarMunicao, 1000);
 	setInterval(renderiza, 15);
 }
@@ -256,6 +256,8 @@ class player{
 function atirar(){
 	if(jogoEmAndamento==true){
 		if(jogador.getMunicao()>0){
+			var audio = new Audio('tiro.wav');
+			audio.play();
 			jogador.setMunicao(jogador.getMunicao()-1);
 			balas.push(new bala);
 		}
@@ -368,6 +370,8 @@ function balaColidiu(){
 	for(var i=0 ; i<balas.length ; i++){
 		for(var j=0 ; j<inimigos.length ; j++){
 			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2 && jogoEmAndamento==true){
+				var audio = new Audio('tiroPegou.wav');
+				audio.play();
 				inimigos[j].setSource("sprites/explosao.png");
 				jogador.setPontuacao(jogador.getPontuacao()+300)
 				balas.splice(i, 1);
@@ -381,6 +385,8 @@ function balaColidiu(){
 // 
 function colisaoMunicao(item, indice, municoes){
 	if(Math.sqrt(Math.pow((jogador.getX() - municoes[indice].getX()), 2) + Math.pow((jogador.getY() - municoes[indice].getY()), 2)) < 100 / 2 && jogoEmAndamento == true){
+		var audio = new Audio('municao.wav');
+		audio.play();
 		jogador.setMunicao(jogador.getMunicao()+municoes[indice].getQt());
 		municoes.splice(indice, 1);
 	}
@@ -395,6 +401,8 @@ function municaoColidiu(){
 function colisaoPlayer(item, indice, inimigos){
 	if(Math.sqrt(Math.pow((jogador.getX() - inimigos[indice].getX()), 2) + Math.pow((jogador.getY() - inimigos[indice].getY()), 2)) < 100 / 2 && jogoEmAndamento == true){
 		inimigos[indice].setSource("sprites/explosao.png");
+		var audio = new Audio('playerColidiu.wav');
+		audio.play();
 		$("canvas").drawImage({
 			source: 'sprites/explosao.png',
 			x: inimigos[indice].getX(),
@@ -625,5 +633,5 @@ $(document).ready(function() {
 		atirar();
 	});
 	jogador = new player();
-	while(partida()==true);
+	partida();
 });
