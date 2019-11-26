@@ -21,11 +21,13 @@ function partida(){
 }
 
 function timer() {
-	tempoDeSessao++;
-	minutos = parseInt(tempoDeSessao / 60);
-	minutos =  minutos < 10 ? "0" + minutos : minutos;
-	segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
-	texto = "Jogador777: "+ jogador.getNome() + " " + "| Level: "+ jogador.getLevel() + " " + "| Tempo: " + minutos + ":" + segundos + " " + "| Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
+	if(jogoEmAndamento==true){
+		tempoDeSessao++;
+		minutos = parseInt(tempoDeSessao / 60);
+		minutos =  minutos < 10 ? "0" + minutos : minutos;
+		segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
+		texto = "Jogador: "+ jogador.getNome() + " " + "| Level: "+ jogador.getLevel() + " " + "| Tempo: " + minutos + ":" + segundos + " " + "| Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
+	}
 }
 
 function jogadorVenceu(){
@@ -39,9 +41,11 @@ function jogadorVenceu(){
 
 //Passa o jogador para o proximo level
 function passaDeLevel(){
-	jogador.setLevel(jogador.getLevel()+1);
-	jogador.setPontuacao(jogador.getPontuacao()+(1000*jogador.getLevel()));
-	jogador.setVelocidadeMax(jogador.getVelocidadeMax()*1.1);
+	if(jogoEmAndamento==true){
+		jogador.setLevel(jogador.getLevel()+1);
+		jogador.setPontuacao(jogador.getPontuacao()+(1000*jogador.getLevel()));
+		jogador.setVelocidadeMax(jogador.getVelocidadeMax()*1.1);
+	}
 }
 
 //Inteiro randomico i, sendo min<= i <max
@@ -260,7 +264,7 @@ function atirar(){
 
 // Movimenta a bala para o norte
 function andarBala(item, indice, balas){
-	balas[indice].setY(balas[indice].getY()-2);
+	balas[indice].setY(balas[indice].getY()-4);
 }
 
 // Movimenta o inimigo de acordo com sua direcao
@@ -363,7 +367,7 @@ function municoesAndam(){
 function balaColidiu(){
 	for(var i=0 ; i<balas.length ; i++){
 		for(var j=0 ; j<inimigos.length ; j++){
-			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2){
+			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2 && jogoEmAndamento==true){
 				inimigos[j].setSource("sprites/explosao.png");
 				jogador.setPontuacao(jogador.getPontuacao()+300)
 				balas.splice(i, 1);
@@ -417,11 +421,11 @@ function renderiza(){
 	removerMunicoesForaDaTela();
 	renderizaCanvas();
 	renderizaPlanoDeFundo();
-	renderizaTempo();
 	renderizaPlayer();
 	renderizaInimigos();
 	renderizaMunicoes();
 	renderizaBalas();
+	renderizaTempo();
 	jogadorColidiu();
 	municaoColidiu();
 	balaColidiu();
