@@ -1,6 +1,8 @@
 var inimigos = new Array();
 var balas = new Array();
 var municoes = new Array();
+var balasRemover = new Array();
+var inimigosRemover = new Array();
 let texto = " ";
 let minutos = "";
 let segundos = "";
@@ -415,13 +417,104 @@ function balaColidiu(){
 			if(Math.sqrt(Math.pow((balas[i].getX() - inimigos[j].getX()), 2) + Math.pow((balas[i].getY() - inimigos[j].getY()), 2)) < 100 / 2 && jogoEmAndamento==true){
 				let audio = new Audio('tiroPegou.wav');
 				audio.play();
-				inimigos[j].setSource("sprites/explosao.png");
 				jogador.setPontuacao(jogador.getPontuacao()+300)
-				balas.splice(i, 1);
-				inimigos.splice(j, 1);
+				balasRemover.push(i);
+				inimigosRemover.push(j);
 			}
 		}
 	}
+	for(var i=0; i<balasRemover.length;i++){
+		balas.splice(parseInt(balasRemover[i], 10), 1);
+	}
+	balasRemover.forEach(removeDoArray);
+	for(var i=0; i<inimigosRemover.length;i++){
+		inimigos.splice(parseInt(inimigosRemover[i], 10), 1);
+	}
+	inimigosRemover.forEach(removeDoArray);
+}
+
+function animacaoExplosao(indice, array){
+			setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao1.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 40,
+			height: 40
+		}); }, 100);
+				setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao1.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 80,
+			height: 80
+		}); }, 200);
+			setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao1.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 140,
+			height: 140
+		}); }, 300);
+		setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao2.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 400);
+			setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao3.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 500);
+					setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao2.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 600);
+			setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao3.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 700);
+					setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao2.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 800);
+			setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao3.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 900);
+
+				setTimeout(function() { 		
+		$("#game").drawImage({
+			source: 'sprites/explosao4.png',
+			x: array[indice].getX(),
+			y: array[indice].getY(),
+			width: 200,
+			height: 200
+		}); }, 1000);
 }
 
 // 
@@ -445,20 +538,14 @@ function colisaoPlayer(item, indice, inimigos){
 		inimigos[indice].setSource("sprites/explosao.png");
 		let audio = new Audio('playerColidiu.wav');
 		audio.play();
-		$("#game").drawImage({
-			source: 'sprites/explosao.png',
-			x: inimigos[indice].getX(),
-			y: inimigos[indice].getY(),
-			width: 200,
-			height: 200
-		});
+		animacaoExplosao(indice, inimigos);
 		jogoEmAndamento = false;
 		setTimeout(gameOver, 1000);
 	}
 }
 
 function gameOver(){
-	mensagem = "Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao(); + " pontos. Tente novamente.";
+	mensagem = "Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao() + " pontos. Tente novamente.";
 	telaInicial();
 	restart = true;
 	$("#tela").on("click", function(event) {
@@ -645,18 +732,8 @@ function criarInimigos(){
 }
 
 // Remove todos os inimigos do vetor de inimigos
-function removeInimigo(item, indice, inimigos){
-	inimigos.splice(indice, 1);
-}
-
-// Remove todos os inimigos do vetor de inimigos
-function removeBala(item, indice, balas){
-	balas.splice(indice, 1);
-}
-
-// Remove todos os inimigos do vetor de inimigos
-function removeMunicao(item, indice, municoes){
-	municoes.splice(indice, 1);
+function removeDoArray(item, indice, array){
+	array.splice(indice, 1);
 }
 
 // Remove o inimigo que saiu da tela do vetor de inimigos
@@ -682,17 +759,17 @@ function removeMunicaoForaDaTela(item, indice, municoes){
 
 // Remove todas as balas
 function removerTodasBalas(){
-	balas.forEach(removeBala);
+	balas.forEach(removeDoArray);
 }
 
 // Romove todos os inimigos
 function removerTodosInimigos(){
-	inimigos.forEach(removeInimigo);
+	inimigos.forEach(removeDoArray);
 }
 
 // Remove todas as municoes
 function removerTodasMunicoes(){
-	municoes.forEach(removeMunicao);
+	municoes.forEach(removeDoArray);
 }
 
 // Verifica quais balas sairam da tela
