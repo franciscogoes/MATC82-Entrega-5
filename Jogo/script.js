@@ -5,20 +5,40 @@ let texto = " ";
 let minutos = "";
 let segundos = "";
 let tempoDeSessao = 0;
-let jogoEmAndamento = false;
+let jogoEmAndamento = false
+let restart = false;
+let mensagem = ""
 
 
 function partida(){
+	texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
 	jogador.setNome(window.prompt("Qual seu nome?"));
 	jogador.setLevel(1);
 	jogador.setPontuacao(0);
-	jogador.setVelocidadeMax(5);
+	jogador.setVelocidadeMax(3);
 	jogoEmAndamento = true;
-	setInterval(timer, 1000);
-	setInterval(passaDeLevel, 15000);
-	setInterval(criarInimigos, 1000);
-	setInterval(criarMunicao, 4000);
-	setInterval(renderiza, 15);
+	tempoDeSessao = 0;
+	if(restart){
+		removerTodasBalas();
+		removerTodosInimigos();
+		removerTodasMunicoes();
+		clearInterval(contaTempo);
+		clearInterval(levelUp);
+		clearInterval(intervalInimigos);
+		clearInterval(intervalMunicao);
+		clearInterval(renderGame);
+		clearInterval(trilha);
+	}
+	let contaTempo = setInterval(timer, 1000);
+	let levelUp = setInterval(passaDeLevel, 15000);
+	let intervalInimigos = setInterval(criarInimigos, 1000);
+	let intervalMunicao = setInterval(criarMunicao, 5000);
+	let renderGame = setInterval(renderiza, 15);
+	TocarSom();
+	let trilha = setInterval(TocarSom, 32000);
+}
+
+function TocarSom(){
 	let soundtrack = new Audio('spacesound.wav');
 	soundtrack.play();
 }
@@ -30,13 +50,19 @@ function timer() {
 	minutos = parseInt(tempoDeSessao / 60);
 	minutos =  minutos < 10 ? "0" + minutos : minutos;
 	segundos = (tempoDeSessao % 60) < 10 ? "0" + tempoDeSessao % 60 : tempoDeSessao % 60;
-	texto = "Jogador: "+ jogador.getNome() + " | Level: "+ jogador.getLevel() + " | Tempo: " + minutos + ":" + segundos + " | Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao();
+	texto = "Jogador: "+ jogador.getNome() + " | Level: "+ jogador.getLevel() + " | Tempo: " + minutos + ":" + segundos;
 }
 
 
 function jogadorVenceu(){
-	window.alert("Voce venceu! Parabens!");
+	window.alert("FIM DE JOGO!")
+	mensagem = "Voce venceu! Parabens!";
 	jogoEmAndamento = false;
+	restart = true;
+	telaInicial();
+	$("#tela").on("click", function(event) {
+		novoJogo();
+	})
 }
 
 //Passa o jogador para o proximo level
@@ -45,7 +71,7 @@ function passaDeLevel(){
 		jogador.setLevel(jogador.getLevel()+1);
 		jogador.setPontuacao(jogador.getPontuacao()+(1000*jogador.getLevel()));
 		jogador.setVelocidadeMax(jogador.getVelocidadeMax()*1.1);
-		velBG += 0.6
+		velBG += 0.6;
 	}
 }
 
@@ -177,7 +203,7 @@ class municao{
 			this.direcao = randomChoice(paraNor);
 			break;
 		}
-		this.qt = 50;
+		this.qt = 30;
 	}
 	getQt(){
 		return this.qt;
@@ -427,8 +453,17 @@ function colisaoPlayer(item, indice, inimigos){
 			height: 200
 		});
 		jogoEmAndamento = false;
-		setTimeout(function() { window.alert("Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao() + " pontos. Tente novamente."); }, 1000);
+		setTimeout(gameOver, 1000);
 	}
+}
+
+function gameOver(){
+	mensagem = "Voce colidiu e perdeu! Voce fez " + jogador.getPontuacao(); + " pontos. Tente novamente.";
+	telaInicial();
+	restart = true;
+	$("#tela").on("click", function(event) {
+		novoJogo();
+	})
 }
 
 // Verifica se o jogador colidiu com algum inimigo
@@ -452,7 +487,7 @@ function renderiza(){
 		renderizaMunicoes();
 		renderizaBalas();
 		renderizaTempo();
-		//renderizaPlacar();
+		renderizaPlacar();
 		jogadorColidiu();
 		municaoColidiu();
 		balaColidiu();
@@ -504,13 +539,25 @@ function renderizaCanvas(){
 function  renderizaTempo(){
 	$("#placar").drawText({
 	fillStyle: "#FFF",
-	x: ($("#game").width()/2), 
+	x: ($("#game").width()/4)+40, 
 	y: 20,
 	fontSize: 20,
 	fontFamily: 'Arial',
 	text: texto
 	});
 }
+
+function renderizaPlacar(){
+	$("#placar").drawText({
+		fillStyle: "#FFF",
+		x: (($("#game").width()/2)+($("#game").width()/4)+40),
+		y: 20,
+		fontSize: 20,
+		fontFamily: 'Arial',
+		text: "Pontuacao: " + jogador.getPontuacao()+ " " + "| Municao: " + jogador.getMunicao()
+	});
+}
+
 
 // Renderiza o canvas
 function renderizaCanvas2(){
@@ -608,7 +655,7 @@ function removeBala(item, indice, balas){
 }
 
 // Remove todos os inimigos do vetor de inimigos
-function removerMunicao(item, indice, municoes){
+function removeMunicao(item, indice, municoes){
 	municoes.splice(indice, 1);
 }
 
@@ -663,60 +710,48 @@ function removerMunicoesForaDaTela(){
 	municoes.forEach(removeMunicaoForaDaTela);
 }
 
-// TENTATIVA DE TELA DE INICIO
-/*
+
 function telaInicial(){
+	$("#tela").show();
+	$("#tela").css("cursor", "pointer");
 	$("#tela").drawImage({
 		source: "paginaBG.jpg",
 		x: 400,
 		y: 300,
-		width: 1000,
-		height: 600
+		width: 1100,
+		height: 650
+	});
+	$("#tela").drawText({
+		fillStyle: "#FFF",
+		x: ($("#game").width()/2), 
+		y: 110,
+		fontSize: 20,
+		fontFamily: 'Arial',
+		text: mensagem
 	});
 }
-
-$(document).ready(function() {
-	telaInicial();
-	
-	$("#tela").on("click",function(){
-		if(!jogoEmAndamento)
-			novoJogo();
-		jogoEmAndamento = true;
-	});
-	
-});
 
 function novoJogo(){
 	$("#tela").clearCanvas();
-	$("#game").css("cursor", "none");
-	$("#game").on("mousemove", function(event) {
-		jogador.setX(event.pageX - ($("body").width() - $("#game").width())/2);
-		jogador.setY(event.pageY);
-	});
-	$("#game").on("click", function(event) {
-		atirar();
-	});
+	$("#tela").hide();
+	// Remove todas as balas
 	jogador = new player();
-	texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
 	partida();
 }
-*/
 
 $(document).ready(function() {
 	$("#game").css("cursor", "none");
 	$("#game").on("mousemove", function(event) {
 		jogador.setX(event.pageX - ($("body").width() - $("canvas").width())/2);
-		jogador.setY(event.pageY);
+		jogador.setY(event.pageY-40);
 	});
-	$("#game").on("click", function(event) {
-		atirar();
+	$("#game").on({
+		click: function() {atirar();}
 	});
-	jogador = new player();
-	//texto = "Jogador: " + jogador.getNome() + "| Level: | Tempo: :";
-	/*if(!jogoEmAndamento){
-		$("canvas").on("click", function(event) {
-			partida();
+	if(!jogoEmAndamento){
+		telaInicial();
+		$("#tela").on("click", function(event) {
+			novoJogo();
 		})
-	};*/ // Clicar para iniciar ou começar de novo
-	partida();
+	};
 });
